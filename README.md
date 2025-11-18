@@ -39,8 +39,12 @@ Add **Fingerprint Login** to your Flutter app — fast, secure, and easy.
 ## 📷 Screenshots
 
 | Before Auth                      | After Auth |
-|----------------------------------|---|
-| ![screenshot-before](assets/img1.jpeg) | ![screenshot-after](assets/img2.jpeg) |
+<table>
+  <tr>
+    <td><img src="asstes/img1.jpeg" width="54%"/></td>
+    <td><img src="asstes/img1.jpeg" width="54%"/></td>
+  </tr>
+</table>
 ---
 
 ## 🛠️ How It Works
