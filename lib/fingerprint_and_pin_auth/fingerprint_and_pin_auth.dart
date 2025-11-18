@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
+
+import 'hive_pin_provider.dart';
 
 class FingerprintAndPinAuth extends StatefulWidget {
   const FingerprintAndPinAuth({super.key});
@@ -14,7 +17,7 @@ class FingerprintAndPinAuth extends StatefulWidget {
 class _FingerprintAndPinAuthState extends State<FingerprintAndPinAuth> {
 
   final LocalAuthentication localAuthentication = LocalAuthentication();
-  final String pin = '1234';
+  bool showRegisterButton = false;
   final TextEditingController controller = TextEditingController();
   bool bioMetricsIsAvailable = false;
   bool isLoading = false;
@@ -65,6 +68,40 @@ class _FingerprintAndPinAuthState extends State<FingerprintAndPinAuth> {
   /// <<< Navigate targeted page ===============================================
 
 
+
+  /// >>> If Incorrect Pin =====================================================
+  void _registerNewPin() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          TextEditingController newPinController = TextEditingController();
+          return AlertDialog(
+            title: Text("Register New PIN"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [Pinput(controller: newPinController, length: 4, obscureText: true, inputFormatters: [FilteringTextInputFormatter.digitsOnly],),],
+            ),
+            actions: [
+              ElevatedButton(onPressed: () => Navigator.pop(context), child: Text("Cancel"),),
+              ElevatedButton(
+                onPressed: () {
+                  if (newPinController.text.length == 4) {
+                    Provider.of<HivePinProvider>(context, listen: false).setPin(newPinController.text);
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("New PIN saved successfully!")),);
+                    setState(() {showRegisterButton = false;});
+                  }
+                },
+                child: Text("Save"),
+              ),
+            ],
+          );
+        }
+    );
+  }
+  /// <<< If Incorrect Pin =====================================================
+
+
   @override
   void dispose() {
     controller.dispose();
@@ -73,7 +110,7 @@ class _FingerprintAndPinAuthState extends State<FingerprintAndPinAuth> {
 
   @override
   Widget build(BuildContext context) {
-
+    final pinProvider = Provider.of<HivePinProvider>(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
       extendBody: true,
@@ -92,14 +129,20 @@ class _FingerprintAndPinAuthState extends State<FingerprintAndPinAuth> {
               pinputAutovalidateMode: PinputAutovalidateMode.onSubmit,
               showCursor: true,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly,],
-              validator: (value) {return value == pin ? null : 'Pin is incorrect';},
+              validator: (value) => pinProvider.validatePin(value ?? '') ? null : 'Pin is incorrect',
               autofocus: true,
               onCompleted: (value) {
-                if(value == pin){_navigateTargetedPage();}
-                else{controller.clear();}
+                if(pinProvider.validatePin(value)){_navigateTargetedPage();}
+                else{controller.clear();setState(() { showRegisterButton = true; });}
               },
             ),
+
+            SizedBox(height: 15,),
+            if(showRegisterButton)...[
+              TextButton(onPressed: _registerNewPin, child: Text("Register New PIN", style: TextStyle(fontSize: 18),textAlign: TextAlign.end,)),
+            ],
             Spacer(),
+            
             if(bioMetricsIsAvailable)...[
               Column(
                 children: [

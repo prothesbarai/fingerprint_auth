@@ -1,7 +1,9 @@
+import 'package:fingerprint_auth/service/hive_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
+import 'package:provider/provider.dart';
 import 'fingerprint_and_pin_auth/fingerprint_and_pin_auth.dart';
+import 'fingerprint_and_pin_auth/hive_pin_provider.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,7 +13,15 @@ void main() async{
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown,]),
   ]);
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent, systemNavigationBarColor: Colors.transparent, systemNavigationBarDividerColor: Colors.transparent, statusBarIconBrightness: Brightness.light, systemNavigationBarIconBrightness: Brightness.light,),);
-  runApp(const MyApp());
+  await HiveService.initHive();
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => HivePinProvider()),
+      ],
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
