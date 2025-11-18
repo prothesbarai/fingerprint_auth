@@ -42,7 +42,7 @@ Add **Fingerprint Login** to your Flutter app — fast, secure, and easy.
 <table>
   <tr>
     <td><img src="asstes/img1.jpeg" width="54%"/></td>
-    <td><img src="asstes/img1.jpeg" width="54%"/></td>
+    <td><img src="asstes/img2.jpeg" width="54%"/></td>
   </tr>
 </table>
 ---
